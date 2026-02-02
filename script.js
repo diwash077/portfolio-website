@@ -29,12 +29,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const revealElements = document.querySelectorAll('.reveal');
 
     const revealOnScroll = () => {
-        const triggerBottom = window.innerHeight * 0.85;
+        const triggerBottom = window.innerHeight * 0.95;
 
         revealElements.forEach(el => {
             const elTop = el.getBoundingClientRect().top;
 
             if (elTop < triggerBottom) {
+                // Check if it's a gallery item to add staggering
+                if (el.classList.contains('gallery-item')) {
+                    const index = Array.from(el.parentNode.children).indexOf(el);
+                    el.style.transitionDelay = `${(index % 3) * 0.15}s`;
+                }
                 el.classList.add('active');
             }
         });
@@ -54,22 +59,59 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Close menu when clicking a link
-    document.querySelectorAll('.nav-links a').forEach(link => {
-        link.addEventListener('click', () => {
-            navLinks.classList.remove('active');
-            menuToggle.classList.remove('active');
+    // Smooth Scroll for Navigation
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            // Close mobile menu if open
+            if (navLinks.classList.contains('active')) {
+                navLinks.classList.remove('active');
+                menuToggle.classList.remove('active');
+            }
+
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+
+            if (targetElement) {
+                const headerOffset = 80;
+                const elementPosition = targetElement.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
         });
     });
-
 
     // Form Submission Handling
     const contactForm = document.querySelector('.contact-form');
     if (contactForm) {
         contactForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            alert('Thank you for reaching out, Diwash! This form is currently a demo.');
-            contactForm.reset();
+            // In a real scenario, you'd send this to a backend
+            const submitBtn = contactForm.querySelector('button');
+            const originalText = submitBtn.innerText;
+
+            submitBtn.innerText = 'Sending...';
+            submitBtn.disabled = true;
+
+            setTimeout(() => {
+                submitBtn.innerText = 'Message Sent!';
+                submitBtn.style.background = '#4CAF50';
+                submitBtn.style.borderColor = '#4CAF50';
+
+                setTimeout(() => {
+                    alert('Thank you for your message! Diwash will get back to you soon.');
+                    contactForm.reset();
+                    submitBtn.innerText = originalText;
+                    submitBtn.disabled = false;
+                    submitBtn.style.background = '';
+                    submitBtn.style.borderColor = '';
+                }, 500);
+            }, 1500);
         });
     }
 });

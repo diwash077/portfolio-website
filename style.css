@@ -35,6 +35,29 @@
     box-sizing: border-box;
 }
 
+/* Base transitions for theme switching */
+body,
+section,
+header,
+footer,
+.container,
+.about,
+.gallery,
+.contact-card,
+.stat-item,
+.btn,
+.logo,
+nav a,
+input,
+textarea {
+    transition: background-color 0.4s ease,
+        color 0.4s ease,
+        border-color 0.4s ease,
+        backdrop-filter 0.4s ease,
+        box-shadow 0.4s ease,
+        opacity 0.4s ease;
+}
+
 html {
     scroll-behavior: smooth;
 }
@@ -423,25 +446,66 @@ nav {
     text-transform: uppercase;
 }
 
-/* Gallery */
+/* Gallery - True Masonry for Full Images */
 .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    column-count: 3;
+    column-gap: 30px;
+    width: 100%;
+}
+
+@media (max-width: 992px) {
+    .gallery-grid {
+        column-count: 2;
+    }
+}
+
+@media (max-width: 600px) {
+    .gallery-grid {
+        column-count: 1;
+    }
 }
 
 .gallery-item {
+    break-inside: avoid;
+    margin-bottom: 30px;
     position: relative;
     overflow: hidden;
-    border-radius: 10px;
-    aspect-ratio: 3/4;
+    border-radius: 15px;
+    border: 1px solid var(--glass-border);
+    background: var(--surface-light);
+    transition: background-color 0.4s ease,
+        border-color 0.4s ease,
+        transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1),
+        opacity 0.8s ease;
+}
+
+.gallery-item::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.gallery-item:hover::before {
+    opacity: 1;
+    top: 25px;
+    left: 25px;
+    right: 25px;
+    bottom: 25px;
 }
 
 .gallery-item img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.8s ease;
+    height: auto;
+    display: block;
+    transition: transform 1.2s ease;
 }
 
 .gallery-item .overlay {
@@ -450,11 +514,14 @@ nav {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(var(--primary-rgb), 0.7);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
+    padding-bottom: 2rem;
     opacity: 0;
+    z-index: 10;
     transition: var(--transition);
 }
 
@@ -467,11 +534,12 @@ nav {
 }
 
 .gallery-item .overlay span {
-    color: #000;
+    color: var(--primary);
     font-family: var(--font-heading);
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 700;
     letter-spacing: 5px;
+    text-transform: uppercase;
     transform: translateY(20px);
     transition: var(--transition);
 }
